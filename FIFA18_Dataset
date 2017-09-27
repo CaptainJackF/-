@@ -1,0 +1,75 @@
+# FIFA18 Player 
+library( readxl)
+library( dplyr)
+library( ggplot2)
+library( mice)
+
+setwd( "D:\\R_Working_Directory\\Data\\FIFA18_Player")
+fifa18_Attribute_dataset <- tbl_df( read.csv( "PlayerAttributeData.csv", 
+            header = TRUE,
+            stringsAsFactors = FALSE,
+            encoding = "UTF-8"
+            ) 
+  )
+fifa18_Personal_dataset <- tbl_df( 
+  read.csv( "PlayerPersonalData.csv", 
+            header = TRUE,
+            stringsAsFactors = FALSE,
+            encoding = "UTF-8"
+  ) 
+)
+## 查看数据集类型，观测值相同。
+str( fifa18_Attribute_dataset)
+str( fifa18_Personal_dataset)
+## 判断两边ID 是否相同
+table( fifa18_Attribute_dataset$ID == fifa18_Personal_dataset$ID)
+## 去重
+## 合并数据集
+fifa18_dataset <- merge( fifa18_Personal_dataset, fifa18_Attribute_dataset, by = "ID")
+
+fifa18_dataset_nouserd <- select( fifa18_dataset, ID, X.y, X.x, Unnamed..0, Photo, Flag, Club.Logo)
+fifa18_dataset <- select( fifa18_dataset, -c( X.y, X.x, Unnamed..0, Photo, Flag, Club.Logo)) %>%
+  # 对Value 和Wage做处理：删除欧元符号和K字眼，转为数值型
+  mutate( Value, as.numeric( gsub( "[^0-9]", "", Value)) ) %>%   
+  mutate( Wage, as.numeric( gsub( "[^0-9]", "", Wage)) )
+# 发现ID有重复，影响后续分析，先对重复数据集做处理
+
+# 发现有大量缺失值
+remove_NA <- function( input){ # 优化 如何可以直接返回ID？
+  return( TRUE %in% is.na( input))
+}
+
+fifa18_ncol <- ncol( fifa18_dataset)
+fifa18_dataset[ ,11:fifa18_ncol] <- apply( fifa18_dataset[ ,11:fifa18_ncol], 2, as.numeric) 
+# 如果有NA 会返回错误信息，因为无法转为数值
+fifa18_dataset$incuding_NA <- apply( fifa18_dataset, 1, remove_NA)
+fifa18_dataset1 <- filter( fifa18_dataset, incuding_NA == FALSE) # 筛选不包含NA的数据
+
+x <- md.pattern( fifa18_dataset)
+xx <- data.frame( a = c( 1,2,3,NA), b = c( 12,3,NA, NA), c = c( 1, NA, NA, NA))
+## row_name 为含有缺失值的行数，新变量为含有多少个缺失值
+
+
+## ------ 描述性统计
+
+## Age vs Overall point - 
+age_st <- ggplot( fifa18_dataset1, aes( Age, Overall)) + 
+  geom_point() 
+
+## National ST, 需要排序
+table( fifa18_dataset$Nationality)
+national_st <- ggplot( fifa18_dataset, aes( Nationality)) + 
+  geom_bar() + 
+  coord_flip()
+
+
+
+
+## ------ 描述性统计 END
+
+## ------ 聚类
+cor( fifa18_dataset1[ ,c( 3, 5, 11:30)]) # 暂时看到 GK部分数值与总分呈现负相关，Goal keeper的数值较少，如果通过聚类算法分成两类会很容易被划分出来。
+library( )
+
+
+## ------ 聚类 END
