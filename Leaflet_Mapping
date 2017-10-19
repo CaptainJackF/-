@@ -1,0 +1,89 @@
+#
+
+library( dplyr)
+library( leaflet)
+library( maps)
+library( sp)
+library( maptools)
+
+nasa_dataset <- tbl_df( nasa)
+#tbl_df( starwars)
+#tbl_df( storms)
+
+m <- leaflet() %>% #调用leaflet地图，生成地图容器
+  addTiles() %>% 
+  setView( lng = 113.3245904,lat = 23.1066805, zoom = 9) %>% # 空间，设定地图中心以及以及缩放大小
+  addMarkers( lng = 113.3245904, lat = 23.1066805, popup = "Canton Tower") # Marker the point.
+
+m
+
+
+# 地图上画点
+leaflet( nasa_dataset[ 1:10, ] ) %>% # Show the first 10 row data from nasa dataset
+  addTiles( ) %>%
+  addCircleMarkers( lng = ~long, lat = ~lat, 
+                    label = ~as.character( cloudhigh),
+                    radius = ~ifelse( cloudhigh >= 15, 8, 4), # 大小比例,可以直接用判断条件做区分
+                    color = ~as.character( pressure), # 颜色
+                    stroke = FALSE, # 消除圆框
+                    fillOpacity = 0.5) # 透明度 
+
+
+# Popups
+content <- paste(sep = "<br/>",
+                 # 使用 HTML代码的格式，可以显示出一条带超链接的标题
+                 "<b><a href='https://baike.baidu.com/item/%E5%B9%BF%E5%B7%9E%E5%A1%94/1951402?fr=aladdin'>Canton Tower</a></b>",
+                 "广州市海珠区阅江西路222号" )
+m <- leaflet() %>% #调用leaflet地图，生成地图容器
+  addTiles() %>%
+  addPopups( lng = 113.3245904, lat = 23.1066805,
+             content, #文本内容
+             options = popupOptions( closeButton = FALSE) # 设置界面，closeButton = FALSE 不启用关闭按钮
+             ) # Marker the point.
+
+# Labels
+m <- leaflet() %>% #调用leaflet地图，生成地图容器
+  addTiles() %>% 
+  setView( lng = 113.3245904,lat = 23.1196805, zoom = 14) %>% # 空间，设定地图中心以及以及缩放大小
+  addMarkers( 
+    lng = 113.3245904, lat = 23.1066805, 
+    label = "Canton Tower",
+    labelOptions = labelOptions( noHide = T)) %>%
+  addMarkers( 
+    lng = 113.332543, lat = 23.123609, # 百度坐标，需要纠偏
+    label = "CTF Finance Centre",
+    labelOptions = labelOptions( noHide = T, textOnly = TRUE)) %>%
+  addMarkers( 
+    lng = 113.329634, lat = 23.123672, # 百度坐标，需要纠偏
+    label = "International Finance Centre",
+    labelOptions = labelOptions( noHide = T, textsize = "15px")) %>%
+  addMarkers( 
+    lng = 113.331287, lat = 23.14362, # 百度坐标，需要纠偏
+    label = "Tianhe Sports Center",
+    labelOptions = labelOptions( noHide = T, textsize = "15px"))
+
+# 标记
+nasa_dataset[ 1:10, ] %>%
+  leaflet( ) %>%
+  addTiles( ) %>%
+  addProviderTiles( "Esri.NatGeoWorldMap") %>% # 地图类型，默认 OSM
+  addMarkers( lng = ~long, lat = ~lat, label = ~as.character( cloudhigh)) %>% 
+  # 地图标记，label 参数可现实标签。popup 参数 是点击之后会弹出一个窗口，也可以显示信息。icon可已定义图案
+  addCircleMarkers( color="red", weight = nasa_dataset[ 1:10, ]$cloudhigh) %>%
+# 设置地图上点的颜色和大小，大小按照cloudhigh数值决定；addCircleMarkers 花圈
+  addPopups( -120, 20, "This is Tips", options = popupOptions( closeButton = TRUE) ) %>%
+  addRectangles(
+    lng1 = -116.0, lat1 = 12,
+    lng2 = -111.5, lat2 = 38,
+    weight = 2, color = "red", fillColor = "transparent",
+    opacity = 1, popup = "I don't know what it is..."
+  )
+
+
+# 不同类型的数据不同颜色显示
+leaflet( ) %>%
+  addTiles( ) %>%
+  addProviderTiles("CartoDB.Positron")%>%
+  addCircleMarkers( data = nasa_dataset[ 1:5, ], color="red", weight = nasa_dataset[ 1:5, ]$cloudhigh) %>%
+  addCircleMarkers( data = nasa_dataset[ 6:10, ], color="green", weight = nasa_dataset[ 6:10, ]$cloudhigh) 
+# 可以根据不同的数据绘制不同颜色的点，需要分段画，数据量大时比较麻烦
