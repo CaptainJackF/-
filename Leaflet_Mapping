@@ -60,7 +60,15 @@ m <- leaflet() %>% #调用leaflet地图，生成地图容器
   addMarkers( 
     lng = 113.331287, lat = 23.14362, # 百度坐标，需要纠偏
     label = "Tianhe Sports Center",
-    labelOptions = labelOptions( noHide = T, textsize = "15px"))
+    labelOptions = labelOptions( 
+      noHide = T, direction = "bottom",
+      style = list(
+        "color" = "red",
+        "font-family" = "serif",
+        "font-style" = "italic",
+        "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+        "font-size" = "12px",
+        "border-color" = "rgba(0,0,0,0.5)")))
 
 # 标记
 nasa_dataset[ 1:10, ] %>%
