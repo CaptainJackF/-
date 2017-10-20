@@ -5,6 +5,8 @@ library( leaflet)
 library( maps)
 library( sp)
 library( maptools)
+library( rgdal)
+library( geojsonio)
 
 nasa_dataset <- tbl_df( nasa)
 #tbl_df( starwars)
@@ -41,35 +43,39 @@ m <- leaflet() %>% #调用leaflet地图，生成地图容器
              options = popupOptions( closeButton = FALSE) # 设置界面，closeButton = FALSE 不启用关闭按钮
              ) # Marker the point.
 
+# Zuobiaojiupian <- function()
+# lng = 113.331287, lat = 23.14362; 113.343219, 23.146881
+# 0.011932 ; 0.003261
+
+
 # Labels
 m <- leaflet() %>% #调用leaflet地图，生成地图容器
   addTiles() %>% 
-  setView( lng = 113.3245904,lat = 23.1196805, zoom = 14) %>% # 空间，设定地图中心以及以及缩放大小
-  addMarkers( 
-    lng = 113.3245904, lat = 23.1066805, 
+  setView( lng = 113.3245904-0.011932,lat = 23.1196805-0.003261, zoom = 14) %>% # 空间，设定地图中心以及以及缩放大小
+  addMarkers( # 可以使用 addLabelOnlyMarkers函数替代，此函数不会显示 Marker标记点
+    lng = 113.331069-0.011932, lat = 23.112209-0.003261, 
     label = "Canton Tower",
-    labelOptions = labelOptions( noHide = T)) %>%
+    labelOptions = labelOptions( noHide = T)) %>% # noHide = FALSE ( default), 当鼠标移动到标记点是才显示label
   addMarkers( 
-    lng = 113.332543, lat = 23.123609, # 百度坐标，需要纠偏
+    lng = 113.332543-0.011932, lat = 23.123609-0.003261, # 百度坐标，需要纠偏
     label = "CTF Finance Centre",
-    labelOptions = labelOptions( noHide = T, textOnly = TRUE)) %>%
+    labelOptions = labelOptions( noHide = T, textOnly = TRUE)) %>% # textOnly 只显示文字不要边框
   addMarkers( 
-    lng = 113.329634, lat = 23.123672, # 百度坐标，需要纠偏
+    lng = 113.329634-0.011932, lat = 23.123672-0.003261, # 百度坐标，需要纠偏
     label = "International Finance Centre",
-    labelOptions = labelOptions( noHide = T, textsize = "15px")) %>%
-  addMarkers( 
-    lng = 113.331287, lat = 23.14362, # 百度坐标，需要纠偏
+    labelOptions = labelOptions( noHide = T, direction = "bottom", textsize = "15px")) %>% # textsize标签文字大小
+  addLabelOnlyMarkers( 
+    lng = 113.331287-0.011932, lat = 23.14362-0.003261, # 百度坐标，需要纠偏
     label = "Tianhe Sports Center",
     labelOptions = labelOptions( 
-      noHide = T, direction = "bottom",
+      noHide = T, direction = "bottom", # 位置
       style = list(
-        "color" = "red",
-        "font-family" = "serif",
-        "font-style" = "italic",
-        "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
-        "font-size" = "12px",
-        "border-color" = "rgba(0,0,0,0.5)")))
-
+        "color" = "red",  # 颜色
+        "font-family" = "serif", # 加粗/斜体
+        "font-style" = "italic", # 字体
+        "box-shadow" = "3px 3px rgba(0,0,0,0.25)", 
+        "font-size" = "12px", 
+        "border-color" = "rgba(0,0,0,0.5)"))) 
 # 标记
 nasa_dataset[ 1:10, ] %>%
   leaflet( ) %>%
@@ -95,3 +101,4 @@ leaflet( ) %>%
   addCircleMarkers( data = nasa_dataset[ 1:5, ], color="red", weight = nasa_dataset[ 1:5, ]$cloudhigh) %>%
   addCircleMarkers( data = nasa_dataset[ 6:10, ], color="green", weight = nasa_dataset[ 6:10, ]$cloudhigh) 
 # 可以根据不同的数据绘制不同颜色的点，需要分段画，数据量大时比较麻烦
+
