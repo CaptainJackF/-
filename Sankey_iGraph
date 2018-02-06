@@ -1,0 +1,25 @@
+## R 桑基图
+
+library( networkD3)
+
+
+## Example1
+# Load energy projection data
+URL <- paste0(
+  "https://cdn.rawgit.com/christophergandrud/networkD3/",
+  "master/JSONdata/energy.json")
+Energy <- jsonlite::fromJSON(URL)
+# Plot
+sankeyNetwork(Links = Energy$links, Nodes = Energy$nodes, Source = "source",
+              Target = "target", Value = "value", NodeID = "name",
+              units = "TWh", fontSize = 12, nodeWidth = 30)
+
+## Example2
+FINAL <- read.csv( "second.csv", stringsAsFactors =  F)
+
+Sankeyname <- data.frame( name = c( unique( temp$CHANNEL_NAME),  unique( temp$Second_channel)))
+Sankeydata <- data.frame( Source = 0, Target = 1:nrow( temp), Value = temp$second_num)
+
+sankeyNetwork( Links = Sankeydata, Nodes = Sankeyname, 
+               Source = "Source", Target = "Target", Value = "Value", NodeID = "name", 
+               units = "", fontSize = 15, nodeWidth = 30, nodePadding = 10, height = 400, width = 650, sinksRight = F)  
