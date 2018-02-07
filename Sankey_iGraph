@@ -23,3 +23,19 @@ Sankeydata <- data.frame( Source = 0, Target = 1:nrow( temp), Value = temp$secon
 sankeyNetwork( Links = Sankeydata, Nodes = Sankeyname, 
                Source = "Source", Target = "Target", Value = "Value", NodeID = "name", 
                units = "", fontSize = 15, nodeWidth = 30, nodePadding = 10, height = 400, width = 650, sinksRight = F)  
+
+
+## 数据处理脚本
+Sankeyname <- data.frame( name = unique( c( temp$act_channel_1, temp$act_channel_2)),
+                          id = ( 1:length( unique( c( temp$act_channel_1, temp$act_channel_2)))) - 1)
+
+Sankeydata <- merge( temp, Sankeyname, by.x = "act_channel_1", by.y = "name")
+Sankeydata <- merge( Sankeydata, Sankeyname, by.x = "act_channel_2", by.y = "name")
+Sankeydata <- data.frame( Source = Sankeydata$id.x, 
+                          Target = Sankeydata$id.y, 
+                          Value = Sankeydata$value)
+
+sankeyNetwork( Links = Sankeydata, Nodes = Sankeyname, 
+               Source = "Source", Target = "Target", Value = "Value", NodeID = "name", 
+               units = "", fontSize = 11, nodeWidth = 30, nodePadding = 10, height = 500, width = 1000, 
+               sinksRight = F) 
